@@ -6,6 +6,8 @@ import com.proto.greet.GreetRequest;
 import com.proto.greet.GreetResponse;
 import com.proto.greet.GreetServiceGrpc;
 import com.proto.greet.Greeting;
+import com.proto.greet.LongGreetRequest;
+import com.proto.greet.LongGreetResponse;
 import io.grpc.stub.StreamObserver;
 
 import java.util.concurrent.TimeUnit;
@@ -49,4 +51,30 @@ public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
         }
     }
 
+    @Override
+    public StreamObserver<LongGreetRequest> longGreet(StreamObserver<LongGreetResponse> responseObserver) {
+        return new StreamObserver<>() {
+
+            String result = "";
+
+            @Override
+            public void onNext(LongGreetRequest value) {
+                result += "Hello " + value.getGreeting().getFirstName() + "!\n";
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                t.printStackTrace();
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onNext(LongGreetResponse.newBuilder()
+                        .setResult(result)
+                        .build());
+
+                responseObserver.onCompleted();
+            }
+        };
+    }
 }
